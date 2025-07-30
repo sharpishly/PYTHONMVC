@@ -29,6 +29,15 @@ class UsersController:
     def greet(self, render_template_func, name="Guest"):
         context = {
             "page_title": f"Greetings, {name}!",
-            "message": f"Hello there, {name}! Welcome to our custom MVC app."
+            "message": f"Hello there, {name}! Welcome to our custom MVC app.",
+            "welcome_message": f"Hello there, {name}! Welcome to our custom MVC app.",
+            "items_html": f"<li>foo</li>"
         }
         return "users/greet.html", context
+
+    def create(self, render_template_func, name="Guest"):
+        context = {
+            "page_title": f"Create, {name}!",
+            "message": f"Hello there, {name}! Welcome to our custom MVC app."
+        }
+        return "users/create.html", context
