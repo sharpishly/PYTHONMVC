@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ~/Documents/shells/machine_learning/mvc
+# cd ~/Documents/shells/machine_learning/mvc
 
 source venv/bin/activate
 
