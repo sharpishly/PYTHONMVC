@@ -28,6 +28,8 @@ sudo apt-get install -y python3 python3-pip python3-venv nginx
 
 # --- 3. Virtual Environment and Python Packages ---
 echo "3. Setting up Python virtual environment and dependencies..."
+
+# Ensure we are in the correct directory before creating the venv
 cd "$YOUR_PROJECT_DIR"
 
 # Virtual environment name
@@ -36,7 +38,13 @@ VENV_DIR="venv"
 # Create and activate a virtual environment if it doesn't exist
 if [ ! -d "$VENV_DIR" ]; then
     echo "Creating new virtual environment: $VENV_DIR"
-    python3 -m venv "$VENV_DIR"
+    python3 -m venv "$VENV_DIR" || { echo "Error: Failed to create virtual environment. Check permissions or 'python3-venv' installation."; exit 1; }
+fi
+
+# Check if the activate script exists before sourcing it
+if [ ! -f "$VENV_DIR/bin/activate" ]; then
+    echo "Error: Virtual environment was not created successfully. '$VENV_DIR/bin/activate' not found."
+    exit 1
 fi
 
 # Activate the virtual environment
@@ -92,6 +100,10 @@ fi
 echo "5. Creating Gunicorn systemd service file..."
 SERVICE_NAME="my_mvc_app"
 SOCKET_NAME="my_mvc_app.sock"
+
+# Change ownership of the project directory to the www-data user/group
+echo "Setting project directory ownership for Gunicorn..."
+sudo chown -R www-data:www-data "$YOUR_PROJECT_DIR"
 
 cat << EOF | sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null
 [Unit]
