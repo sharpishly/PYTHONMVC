@@ -185,3 +185,4 @@ echo "    https://certbot.eff.org/instructions"
 echo ""
 echo "📁 Ensure your static files are located in:"
 echo "    ${YOUR_PROJECT_DIR}/static/"
+# --- Additional commands below ---
