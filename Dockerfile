@@ -1,27 +1,27 @@
-FROM python:3.11-slim
-
-# Environment variables for Python
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-WORKDIR /app
-
-# Install system dependencies (optional: curl for debugging)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash \
+FROM php:8.1-fpm
+# Installing dependencies
+RUN apt-get update && apt-get install -y \
     curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy and install dependencies
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install --no-cache-dir gunicorn
-
-# Copy the application code
-COPY . /app/
-
-# Expose port 3000 for Gunicorn
-EXPOSE 3000
-
-# Run Gunicorn directly without venv
-CMD ["gunicorn", "--bind", "0.0.0.0:3000", "wsgi:application"]
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    default-mysql-client \  # Added MySQL client for testing
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# Installing Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Setting working directory
+WORKDIR /var/www/html
+# Copying application code
+COPY ./sharpishly.com/website/public /var/www/html/sharpishly
+COPY ./dev.sharpishly.com /var/www/html/dev_sharpishly
+# Setting permissions
+RUN chown -R www-data:www-data /var/www/html/sharpishly \
+    && chown -R www-data:www-data /var/www/html/dev_sharpishly \
+    && chmod -R 755 /var/www/html/sharpishly \
+    && chmod -R 755 /var/www/html/dev_sharpishly
+# Exposing port for PHP-FPM
+EXPOSE 9000
+# Starting PHP-FPM
+CMD ["php-fpm"]
