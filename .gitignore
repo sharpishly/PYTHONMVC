@@ -3,3 +3,6 @@ __pycache__/
 venv/
 .env
 tmp/
+
+# Dev shell scripts
+./commit.sh
