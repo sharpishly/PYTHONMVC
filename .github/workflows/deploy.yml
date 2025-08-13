@@ -1,19 +1,17 @@
 name: Deploy to DigitalOcean Droplet
 
-# This workflow runs on a push to the 'master' branch
 on:
   push:
     branches:
       - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Deploy to DigitalOcean Droplet via SSH
       - name: Deploy with SSH and pull latest code
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -21,32 +19,27 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # Navigate to the correct directory
-
-            # Stop nginx on the host after reboot
             sudo service nginx stop
 
-            # Master branch
             cd /var/www/python_mvc
-            
-            # Run the deployment commands provided by the user
 
-            # Make safe before pulling new code
             git stash
-
-            # Git pull command by it's self
             git pull origin master
 
-
-            # Allow acces through firewall
             sudo ufw allow 3000
             sudo ufw status
 
-            # Set File and folder permissions
-            #sudo chmod -R 755 /var/www/python_mvc
-
-            # Stop docker
             docker-compose down
 
-            # Start docker-compose
+            # Ensure Dockerfile runs python-mvc with Gunicorn
+            cat > Dockerfile <<'EOF'
+            FROM python:3.11-slim
+            WORKDIR /app
+            COPY requirements.txt .
+            RUN pip install --no-cache-dir -r requirements.txt
+            COPY . .
+            EXPOSE 3000
+            CMD ["gunicorn", "--bind", "0.0.0.0:3000", "runserver:app"]
+            EOF
+
             docker-compose up -d --build
