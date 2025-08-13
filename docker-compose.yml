@@ -3,6 +3,51 @@ version: "3.8"
 services:
   python-mvc:
     build: .
+    container_name: python-mvc
     ports:
       - "3000:3000"
     restart: unless-stopped
+    command: gunicorn --bind 0.0.0.0:3000 runserver:app
+    environment:
+      - GITHUB_ACTIONS=true
+      - CI=true
+    volumes:
+      - .:/app
+
+  # Optional: Add your other services here
+  nginx:
+    image: nginx:latest
+    container_name: sharpishly_prod
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+    depends_on:
+      - python-mvc
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+
+  php_fpm:
+    build: ./php
+    container_name: app-php_fpm
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+
+  db:
+    image: mysql:8.0
+    container_name: app-db-1
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: app
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
