@@ -14,7 +14,6 @@ services:
     volumes:
       - .:/app
 
-  # Optional: Add your other services here
   nginx:
     image: nginx:latest
     container_name: sharpishly_prod
@@ -27,6 +26,8 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/ssl:/etc/nginx/ssl
+    # Ensures Nginx reloads if config changes
+    command: [ "nginx", "-g", "daemon off;" ]
 
   php_fpm:
     build: ./php
