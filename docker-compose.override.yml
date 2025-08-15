@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  python-mvc:
+    # Override command to run Flask's dev server
+    command: python runserver.py
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_ENV=development
+      - PYTHONUNBUFFERED=1

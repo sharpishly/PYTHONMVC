@@ -6,3 +6,4 @@ tmp/
 
 # Dev shell scripts
 commit.sh
+dir_list.sh
