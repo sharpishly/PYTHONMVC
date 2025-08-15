@@ -27,15 +27,15 @@ jobs:
             git pull origin main
 
             echo "🔹 Updating Dockerfile..."
-cat > Dockerfile <<'EOF'
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-EXPOSE 8000
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "wsgi:application"]
-EOF
+            cat > Dockerfile <<'EOF'
+            FROM python:3.11-slim
+            WORKDIR /app
+            COPY requirements.txt .
+            RUN pip install --no-cache-dir -r requirements.txt
+            COPY . .
+            EXPOSE 8000
+            CMD ["gunicorn", "--bind", "0.0.0.0:8000", "wsgi:application"]
+            EOF
 
             echo "🔹 Building only the python-mvc service..."
             docker-compose build python-mvc
