@@ -1,5 +1,3 @@
-from flask import Flask
-from runserver import app  # or from wherever your Flask instance is
-
-# Expose app for Gunicorn
+# wsgi.py
+from runserver import app
 application = app

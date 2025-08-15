@@ -1,54 +1,46 @@
-version: "3.8"
+name: Deploy to DigitalOcean Droplet
 
-services:
-  python-mvc:
-    build: .
-    container_name: python-mvc
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
-    command: gunicorn --bind 0.0.0.0:3000 runserver:app
-    environment:
-      - GITHUB_ACTIONS=true
-      - CI=true
-    volumes:
-      - .:/app
+on:
+  push:
+    branches:
+      - main
 
-  nginx:
-    image: nginx:latest
-    container_name: sharpishly_prod
-    ports:
-      - "80:80"
-      - "443:443"
-    restart: unless-stopped
-    depends_on:
-      - python-mvc
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/ssl:/etc/nginx/ssl
-    # Ensures Nginx reloads if config changes
-    command: [ "nginx", "-g", "daemon off;" ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  php_fpm:
-    build: ./php
-    container_name: app-php_fpm
-    restart: unless-stopped
-    ports:
-      - "9000:9000"
+      - name: Deploy with SSH and pull latest code
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -e
 
-  db:
-    image: mysql:8.0
-    container_name: app-db-1
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: app
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: apppass
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
+            echo "🔹 Pulling latest code..."
+            cd /var/www/python_mvc
+            git reset --hard
+            git pull origin main
 
-volumes:
-  db_data:
+            echo "🔹 Updating Dockerfile..."
+cat > Dockerfile <<'EOF'
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "wsgi:application"]
+EOF
+
+            echo "🔹 Building only the python-mvc service..."
+            docker-compose build python-mvc
+
+            echo "🔹 Restarting only the python-mvc container..."
+            docker-compose up -d --no-deps python-mvc
+
+            echo "✅ Deployment complete!"

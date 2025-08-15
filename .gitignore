@@ -5,4 +5,4 @@ venv/
 tmp/
 
 # Dev shell scripts
-./commit.sh
+commit.sh
