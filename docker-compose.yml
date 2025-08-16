@@ -19,10 +19,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    depends_on:
-      - php_fpm
-      - python_app
-      - db
+
     command: >
       /bin/sh -c "
         chmod -R 755 /var/www/python_mvc &&
@@ -45,8 +42,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    depends_on:
-      - db
+
 
 networks:
   sharpishly-network:
