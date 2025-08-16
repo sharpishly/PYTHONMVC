@@ -1,4 +1,4 @@
-version: '3.8'
+#version: '3.8'
 services:
   sharpishly:
     image: nginx:latest
@@ -30,7 +30,7 @@ services:
 
   python_mvc:
     build:
-      context: ./python_mvc
+      context: .
       dockerfile: Dockerfile
     container_name: python_mvc
     ports:
