@@ -5,7 +5,7 @@ services:
     container_name: pythonmvc_prod
     volumes:
       - /var/www/python_mvc:/var/www/python_mvc
-      - /var/www/python_mvc/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - /var/www/python_mvc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
       - /etc/letsencrypt:/etc/letsencrypt
     ports:
       - "80:80"
