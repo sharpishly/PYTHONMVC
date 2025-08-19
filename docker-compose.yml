@@ -1,17 +1,19 @@
-#version: '3.8'
+version: "3.8"
+
 services:
   sharpishly:
     image: nginx:latest
     container_name: pythonmvc_prod
-    volumes:
-      - /var/www/python_mvc:/var/www/python_mvc
-      - /var/www/python_mvc/nginx/conf.d/default.conf:/etc/nginx/sites-available/default.conf
-      - /etc/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - /var/www/python_mvc:/var/www/python_mvc
+      - /var/www/python_mvc/nginx/conf.d:/etc/nginx/conf.d
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     environment:
-      - NGINX_HOST=sharpishly.com
+      - NGINX_HOST=py.sharpishly.com
     networks:
       - sharpishly-network
     healthcheck:
@@ -19,22 +21,20 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
     command: >
       /bin/sh -c "
         chmod -R 755 /var/www/python_mvc &&
         chown -R www-data:www-data /var/www/python_mvc &&
-        ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled &&
         nginx -g 'daemon off;'"
-
 
   python_mvc:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: python_mvc
-    ports:
-      - "3000:3000"
+    restart: unless-stopped
+    expose:
+      - "3000"
     networks:
       - sharpishly-network
     healthcheck:
@@ -42,7 +42,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
 
 networks:
   sharpishly-network:
