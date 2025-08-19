@@ -1,0 +1,19 @@
+# Doxyfile for Python project documentation
+
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "Python Project"
+OUTPUT_DIRECTORY       = docs/
+CREATE_SUBDIRS         = YES
+OUTPUT_LANGUAGE        = English
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+INPUT                  = .
+FILE_PATTERNS          = *.py
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+SOURCE_BROWSER         = YES
+GENERATE_TREEVIEW      = YES
+OPTIMIZE_OUTPUT_FOR_C  = NO
+PYTHON_DOCSTRING_STYLE = YES

@@ -3,3 +3,12 @@ __pycache__/
 venv/
 .env
 tmp/
+
+# enviornment
+.env
+
+# doxygen
+doxygen.sh
+
+# shells
+commit.sh
