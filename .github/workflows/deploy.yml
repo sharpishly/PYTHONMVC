@@ -21,6 +21,10 @@ jobs:
           script: |
             cd /var/www/python_mvc
 
+            # Stop nginx on the host after reboot
+            sudo service nginx stop
+            sudo systemctl stop nginx
+            
             git stash || true
             git pull origin dev
 
