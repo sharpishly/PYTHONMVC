@@ -9,35 +9,38 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Step 2: Deploy via SSH
       - name: Deploy with SSH
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -e
+
+            echo ">>> Switching to app directory"
             cd /var/www/python_mvc
 
-            # Stop nginx on the host after reboot
-            #sudo service nginx stop
-            #sudo systemctl stop nginx
-
+            echo ">>> Stashing any local changes"
             git stash || true
+
+            echo ">>> Pulling latest code from dev branch"
             git pull origin dev
 
-            sudo ufw allow 80
-            sudo ufw allow 443
-            sudo ufw allow 8080
-            sudo ufw allow 8443
-            sudo ufw allow 1000
-            sudo ufw allow 2000
+            echo ">>> Allowing firewall ports (only once, safe if already set)"
+            sudo ufw allow 80 || true
+            sudo ufw allow 443 || true
             sudo ufw status
 
+            echo ">>> Stopping old containers"
             docker-compose down
+
+            echo ">>> Rebuilding & starting containers"
             docker-compose up -d --build
 
-            source venv/bin/activate
-            gunicorn --bind 127.0.0.1:8000 wsgi:application
+            echo ">>> Deployment finished successfully!"
