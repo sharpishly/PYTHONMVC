@@ -1,40 +1,29 @@
 name: Deploy to DigitalOcean Droplet
 
-# This workflow runs on a push to the 'dev' branch
 on:
   push:
     branches:
       - dev
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Deploy to DigitalOcean Droplet via SSH
-      - name: Deploy with SSH and pull latest code
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Deploy with SSH
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # Navigate to the correct directory
-
-            # Dev branch
             cd /var/www/python_mvc
-            
-            # Run the deployment commands provided by the user
 
-            # Make safe before pulling new code
-            git stash
-
-            # Git pull command by it's self
+            git stash || true
             git pull origin dev
 
-            # Allow acces through firewall
             sudo ufw allow 80
             sudo ufw allow 443
             sudo ufw allow 8080
@@ -43,16 +32,7 @@ jobs:
             sudo ufw allow 2000
             sudo ufw status
 
-            # Set File and folder permissions
-            #sudo chmod -R 755 /var/www/app/sharpishly.com/website/public
-            #sudo chmod -R 755 /var/www/app/dev.sharpishly.com/website/public
-            #sudo chown -R www-data:www-data /var/www/app/sharpishly.com/website/public
-            #sudo chown -R www-data:www-data /var/www/app/dev.sharpishly.com/website/public
-
-            # Stop docker
             docker-compose down
-
-            # Start docker-compose
             docker-compose up -d --build
 
             source venv/bin/activate
